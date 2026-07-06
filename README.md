@@ -27,7 +27,9 @@ kind:
 
 ## Apps
 
-- Keycloak — OpenID provider with a Postgres backend (`iam` ns)
+- Keycloak — OpenID provider with a Postgres backend (ns: `iam`)
+- Open WebUI — AI interface with a Postgres backend, 
+  gated by oauth2-proxy (ns: `open-webui`).
 
 ## Secrets
 

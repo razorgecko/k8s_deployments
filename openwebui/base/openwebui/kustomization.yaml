@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - secret.yaml
+  - configmap.yaml
+  - pvc.yaml
+  - serviceaccount.yaml
+  - deployment.yaml
+  - service.yaml
+  - redirect-https.yaml
+  - no-store.yaml
+  - immutable-cache.yaml
+  - ingress.yaml

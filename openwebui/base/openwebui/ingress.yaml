@@ -1,0 +1,53 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: open-webui
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+    # Reverse-proxy mode: oauth2-proxy is the only backend
+    # no-store on the catch-all router: HTML documents always revalidate
+    traefik.ingress.kubernetes.io/router.middlewares: >-
+      open-webui-redirect-https@kubernetescrd,
+      open-webui-no-store@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts: ["placeholder.invalid"]
+      secretName: openwebui-tls
+  rules:
+    - host: placeholder.invalid
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: oauth2-proxy
+                port:
+                  number: 4180
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: open-webui-assets
+  annotations:
+      # Cache /_app/immutable assets
+    traefik.ingress.kubernetes.io/router.middlewares: >-
+      open-webui-redirect-https@kubernetescrd,
+      open-webui-immutable-cache@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts: ["placeholder.invalid"]
+      secretName: openwebui-tls
+  rules:
+    - host: placeholder.invalid
+      http:
+        paths:
+          - path: /_app/immutable
+            pathType: Prefix
+            backend:
+              service:
+                name: oauth2-proxy
+                port:
+                  number: 4180
