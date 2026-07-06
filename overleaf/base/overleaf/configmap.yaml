@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: overleaf-config
+data:
+  OVERLEAF_APP_NAME: "Overleaf"
+  OVERLEAF_BEHIND_PROXY: "true"
+  OVERLEAF_SECURE_COOKIE: "true"
+  OVERLEAF_SITE_URL: "https://placeholder.invalid"
+  OVERLEAF_ADMIN_EMAIL: "admin@placeholder.invalid"
+  OVERLEAF_MONGO_URL: "mongodb://mongo-0.mongo.overleaf.svc.cluster.local:27017/sharelatex?replicaSet=rs0"
+  OVERLEAF_REDIS_HOST: "redis"
+  REDIS_HOST: "redis"
+  OVERLEAF_REDIS_PORT: "6379"
+  REDIS_PORT: "6379"

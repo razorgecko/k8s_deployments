@@ -1,0 +1,72 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources: [../base]
+
+namespace: overleaf
+
+images:
+  - name: mongo
+    newTag: "8.0"
+  - name: redis
+    newTag: "7.4"
+  - name: sharelatex/sharelatex
+    newTag: "6.2.1"
+  - name: quay.io/oauth2-proxy/oauth2-proxy
+    newTag: "v7.15.3"
+
+configMapGenerator:
+  - name: params
+    behavior: create
+    envs:
+      - params.env
+  - name: overleaf-config
+    behavior: merge
+    envs:
+      - overleaf.cm.env
+  - name: oauth2-proxy-config
+    behavior: create
+    envs:
+      - oauth2-proxy.cm.env
+
+secretGenerator:
+  - name: overleaf-secret
+    behavior: replace
+    envs:
+      - overleaf.secret.env
+  - name: oauth2-proxy-secret
+    behavior: create
+    envs:
+      - oauth2-proxy.secret.env
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+replacements:
+  - source: { kind: ConfigMap, name: params, fieldPath: data.host }
+    targets:
+      - select: { kind: Ingress }
+        fieldPaths: [spec.rules.0.host, spec.tls.0.hosts.0]
+
+patches:
+  - patch: |
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: overleaf
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+  - target: { kind: StatefulSet, name: mongo }
+    patch: |
+      - op: replace
+        path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
+        value: 5Gi
+  - target: { kind: PersistentVolumeClaim, name: redis-data }
+    patch: |
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: 1Gi
+  - target: { kind: PersistentVolumeClaim, name: overleaf-data }
+    patch: |
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: 10Gi

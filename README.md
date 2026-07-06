@@ -29,7 +29,9 @@ kind:
 
 - Keycloak — OpenID provider with a Postgres backend (ns: `iam`)
 - Open WebUI — AI interface with a Postgres backend, 
-  gated by oauth2-proxy (ns: `open-webui`).
+  gated by oauth2-proxy (ns: `open-webui`). Optional OIDC login.
+- Overleaf — LaTeX editor with MongoDB and Redis backends, 
+  gated by oauth2-proxy (ns: `overleaf`).
 
 ## Secrets
 

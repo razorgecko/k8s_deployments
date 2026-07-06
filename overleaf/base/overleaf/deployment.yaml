@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: overleaf
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # RWO volume
+  selector:
+    matchLabels:
+      app: overleaf
+  template:
+    metadata:
+      labels:
+        app: overleaf
+    spec:
+      serviceAccountName: overleaf
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      containers:
+        - name: overleaf
+          image: sharelatex/sharelatex
+          envFrom:
+            - configMapRef:
+                name: overleaf-config
+            - secretRef:
+                name: overleaf-secret
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/overleaf
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+            limits:
+              memory: "4Gi"
+          startupProbe:
+            httpGet:
+              path: /status
+              port: 80
+            periodSeconds: 10
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: 80
+            periodSeconds: 15
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: overleaf-data
