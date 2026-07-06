@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    # Staging endpoint - untrusted certs, generous limits.
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: placeholder@invalid.com
+    privateKeySecretRef:
+      # cert-manager generates a private key for ACME *account* (not the cert)
+      # and stores it here, in the cert-manager namespace. Created automatically.
+      name: letsencrypt-staging-account-key
+    solvers:
+      - http01:
+          ingress:
+            # solve HTTP-01 by spinning up a temporary Ingress through Traefik
+            # to serve the challenge token on port 80
+            ingressClassName: traefik

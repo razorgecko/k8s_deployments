@@ -19,6 +19,12 @@ Apply an app with:
 kubectl apply -k <app>/overlay-prod
 ```
 
+## Infrastructure
+
+`infrastructure/` holds cluster-scoped resources that apps depend on, grouped by
+kind:
+- `issuers/` — Let's Encrypt ClusterIssuers (cert-manager).
+
 ## Secrets
 
 Real config and secrets live in `*.env` files consumed by the Kustomize
