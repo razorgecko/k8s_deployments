@@ -1,0 +1,50 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources: [../base]
+
+namespace: iam
+
+images:
+  - name: quay.io/keycloak/keycloak
+    newTag: "26.6.4"
+  - name: postgres
+    newTag: "18.4-bookworm"
+
+secretGenerator:
+  - name: keycloak-db
+    behavior: replace
+    envs: [keycloak-db.secret.env]
+  - name: keycloak-admin
+    behavior: replace
+    envs: [keycloak-admin.secret.env]
+
+configMapGenerator:
+  - name: params
+    behavior: create
+    envs: [params.env]
+  - name: keycloak-config
+    behavior: replace
+    envs: [keycloak.cm.env]
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+replacements:
+  - source: { kind: ConfigMap, name: params, fieldPath: data.host }
+    targets:
+      - select: { kind: Ingress, name: keycloak }
+        fieldPaths: [spec.rules.0.host, spec.tls.0.hosts.0]
+
+patches:
+  - patch: |
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: keycloak
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+  - target: { kind: StatefulSet, name: postgres }
+    patch: |
+      - op: replace
+        path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
+        value: 2Gi

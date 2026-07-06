@@ -25,6 +25,10 @@ kubectl apply -k <app>/overlay-prod
 kind:
 - `issuers/` — Let's Encrypt ClusterIssuers (cert-manager).
 
+## Apps
+
+- Keycloak — OpenID provider with a Postgres backend (`iam` ns)
+
 ## Secrets
 
 Real config and secrets live in `*.env` files consumed by the Kustomize
