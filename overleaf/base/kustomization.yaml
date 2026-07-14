@@ -4,5 +4,5 @@ resources:
   - namespace.yaml
   - mongo
   - redis
-  - oauth2-proxy
+  - ../../common/oauth2-proxy
   - overleaf

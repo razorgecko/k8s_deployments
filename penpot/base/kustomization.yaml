@@ -4,5 +4,5 @@ resources:
   - namespace.yaml
   - postgres
   - valkey
-  - oauth2-proxy
+  - ../../common/oauth2-proxy
   - penpot

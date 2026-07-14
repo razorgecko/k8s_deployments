@@ -18,10 +18,10 @@ See each app's README for the specifics.
 ## Tech stack
 
 - **Identity**: Keycloak (OIDC), oauth2-proxy
-- **Apps**: Open WebUI, Overleaf (Community Edition)
-- **Data stores**: Postgres, MongoDB, Redis
+- **Apps**: Open WebUI, Overleaf (Community Edition), Penpot
+- **Data stores**: Postgres, MongoDB, Redis, Valkey
 - **Ingress / TLS**: Traefik, cert-manager
-- **Orchestration**: K3s, Kustomize
+- **Orchestration**: K3s, Kustomize, Helm (Penpot)
 
 Pinned versions live in each app's README.
 
@@ -32,7 +32,7 @@ Pinned versions live in each app's README.
   reachable from the internet for ACME HTTP-01 challenges.
 - A domain with DNS A records for each app's host pointed at the
   cluster.
-- `kubectl` with Kustomize support (`kubectl apply -k`).
+- `kubectl` with Kustomize support (`kubectl apply -k`), and `helm` for Penpot.
 
 ## Bootstrap order
 
@@ -58,11 +58,15 @@ the issuers and cluster-level settings are set up.
 
 Each app directory follows the same structure:
 
-- `base/` — namespace plus one subdirectory per component (database,
-  oauth2-proxy, the app itself), aggregated in a root `kustomization.yaml`.
+- `base/` — namespace plus one subdirectory per component (database, the app
+  itself), aggregated in a root `kustomization.yaml` that also pulls in
+  `common/oauth2-proxy`.
 - `overlay-prod/` — sets the namespace, pins image tags, generates
   ConfigMaps/Secrets from `.env` files, and carries env-specific patches and
   replacements.
+
+[`common/`](common/) holds manifests shared by every app: `oauth2-proxy`,
+configured per app by the ConfigMap and Secret its overlay generates.
 
 ## Infrastructure
 
@@ -77,6 +81,9 @@ cluster-level config that every app depends on — ClusterIssuers.
   configured but disabled by default.
 - [Overleaf](overleaf/) — LaTeX editor with MongoDB and Redis backends, gated
   by oauth2-proxy (ns: `overleaf`)
+- [Penpot](penpot/) — design platform with Postgres and Valkey backends,
+  deployed from the upstream Helm chart, gated by oauth2-proxy and signing in
+  natively against Keycloak (ns: `penpot`)
 
 ## Secrets
 
