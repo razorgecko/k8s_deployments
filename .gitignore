@@ -1,6 +1,9 @@
 # env variables
 *.env
 
+# Helm values
+values-prod.yaml
+
 # scratch
 scratch/
 
