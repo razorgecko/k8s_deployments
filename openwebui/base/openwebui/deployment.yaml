@@ -26,8 +26,7 @@ spec:
             - configMapRef:
                 name: openwebui-config
             - secretRef:
-                name: openwebui-oidc
-                optional: true
+                name: openwebui-secret
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:

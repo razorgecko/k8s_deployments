@@ -10,12 +10,12 @@ AI chat interface, gated by oauth2-proxy.
   (`letsencrypt-prod` cert, HTTP→HTTPS redirect). oauth2-proxy requires a
   Keycloak login before any request reaches the app.
 
-Open WebUI is not exposed directly: it trusts the identity headers
-oauth2-proxy sets (`WEBUI_AUTH_TRUSTED_EMAIL_HEADER` /
-`WEBUI_AUTH_TRUSTED_NAME_HEADER`) to sign the user in — no separate Open
-WebUI credentials. A native OIDC client against the same Keycloak realm is
-also wired but disabled by default (ConfigMap generator is commented out in
-`overlay-prod/kustomization.yaml`). 
+Open WebUI is not exposed directly: requests pass through oauth2-proxy, and the
+app then signs the user in natively via OIDC against the same Keycloak realm.
+The app is configured to make the second sign-in silent by hiding the password
+form (`ENABLE_LOGIN_FORM`) and redirecting the request (`OAUTH_AUTO_REDIRECT`).
+Password auth is off (`ENABLE_PASSWORD_AUTH`), so Keycloak is the only method
+to log in.
 
 ## Apply
 
@@ -37,6 +37,12 @@ POST=^/api/v1/messages$
 
 These routes bypass Keycloak SSO but are still protected by Open WebUI's 
 API-token auth, which is what lets non-interactive clients authenticate.
+
+**`ui.*` config is persisted in the database.**
+After first boot, `ui.*`/`webui.*` settings are read from the `config` table,
+so changing the env var alone has no effect.
+Use `ENABLE_PERSISTENT_CONFIG=false` for env vars in ConfigMap to have
+effect. **WARNING:** The action discards settings configured through UI.
 
 **SPA shell caching.**
 The catch-all `/` path is served with `Cache-Control: no-store`; 

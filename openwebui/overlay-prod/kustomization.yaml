@@ -21,7 +21,6 @@ configMapGenerator:
     behavior: replace
     envs:
       - openwebui.cm.env
-      # - openwebui-oidc.cm.env
   - name: oauth2-proxy-config
     behavior: create
     envs:
@@ -32,10 +31,10 @@ secretGenerator:
     behavior: replace
     envs:
       - postgres.secret.env
-  - name: openwebui-oidc
+  - name: openwebui-secret
     behavior: replace
     envs:
-      - openwebui-oidc.secret.env
+      - openwebui.secret.env
   - name: oauth2-proxy-secret
     behavior: create
     envs:
