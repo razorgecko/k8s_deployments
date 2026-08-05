@@ -13,6 +13,9 @@ config:
 
   telemetryEnabled: false
 
+  # Set kube-dns cluster IP as custom resolver for frontend (likely 10.43.0.10)
+  internalResolver: "10.43.x.x"
+
   # base/postgres
   postgresql:
     host: "postgres.penpot.svc.cluster.local"
