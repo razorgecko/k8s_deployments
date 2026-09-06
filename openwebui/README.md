@@ -4,7 +4,7 @@ AI chat interface, gated by oauth2-proxy.
 
 - Namespace: `open-webui`, served at `owui.<domain>`.
 - Postgres StatefulSet (`17.10-bookworm`, 2Gi PVC) holds chats/users.
-- Open WebUI Deployment (`0.10.2`, 4Gi PVC for cache/RAG/uploaded files),
+- Open WebUI Deployment (`0.11.3`, 4Gi PVC for cache/RAG/uploaded files),
   storage on `local-path`.
 - Fronted by oauth2-proxy in reverse-proxy mode behind a Traefik Ingress
   (`letsencrypt-prod` cert, HTTP→HTTPS redirect). oauth2-proxy requires a
@@ -37,6 +37,17 @@ POST=^/api/v1/messages$
 
 These routes bypass Keycloak SSO but are still protected by Open WebUI's 
 API-token auth, which is what lets non-interactive clients authenticate.
+
+Model-management endpoints (e.g. /api/v1/models/*) are deliberately not in
+this list and remain behind Keycloak, so they are not reachable with an API
+token through the proxy. To use them, bypass the proxy with
+
+```
+kubectl -n open-webui port-forward svc/open-webui 8080:8080
+```
+
+and address the service directly at `http://localhost:8080`, authenticating
+with an Open WebUI API token.
 
 **`ui.*` config is persisted in the database.**
 After first boot, `ui.*`/`webui.*` settings are read from the `config` table,
